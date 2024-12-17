@@ -1,3 +1,5 @@
+🕙[ 15:48:50 ] terraform plan
+
 Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
   + create
 
@@ -40,10 +42,50 @@ Terraform will perform the following actions:
       + tag {
           + key                 = "Khalis-EC2-intance"
           + propagate_at_launch = true
-          + value               = "asg_instance"
+          + value               = "test_asg"
         }
 
       + traffic_source (known after apply)
+    }
+
+  # aws_autoscaling_policy.cpu_policy will be created
+  + resource "aws_autoscaling_policy" "cpu_policy" {
+      + arn                     = (known after apply)
+      + autoscaling_group_name  = (known after apply)
+      + enabled                 = true
+      + id                      = (known after apply)
+      + metric_aggregation_type = (known after apply)
+      + name                    = "cpu_policy"
+      + policy_type             = "TargetTrackingScaling"
+
+      + target_tracking_configuration {
+          + disable_scale_in = false
+          + target_value     = 45
+
+          + predefined_metric_specification {
+              + predefined_metric_type = "ASGAverageCPUUtilization"
+            }
+        }
+    }
+
+  # aws_cloudwatch_metric_alarm.cpu_alarm will be created
+  + resource "aws_cloudwatch_metric_alarm" "cpu_alarm" {
+      + actions_enabled                       = true
+      + alarm_description                     = "Alarm when CPU exceeds 45% for instances"
+      + alarm_name                            = "cpu_high"
+      + arn                                   = (known after apply)
+      + comparison_operator                   = "GreaterThanOrEqualToThreshold"
+      + dimensions                            = (known after apply)
+      + evaluate_low_sample_count_percentiles = (known after apply)
+      + evaluation_periods                    = 2
+      + id                                    = (known after apply)
+      + metric_name                           = "CPUUtilization"
+      + namespace                             = "AWS/EC2"
+      + period                                = 60
+      + statistic                             = "Average"
+      + tags_all                              = (known after apply)
+      + threshold                             = 45
+      + treat_missing_data                    = "missing"
     }
 
   # aws_eip.khalis_nat_eip will be created
@@ -69,6 +111,57 @@ Terraform will perform the following actions:
       + vpc                  = (known after apply)
     }
 
+  # aws_iam_instance_profile.ec2_profile will be created
+  + resource "aws_iam_instance_profile" "ec2_profile" {
+      + arn         = (known after apply)
+      + create_date = (known after apply)
+      + id          = (known after apply)
+      + name        = "ec2_profile"
+      + name_prefix = (known after apply)
+      + path        = "/"
+      + role        = "ec2_cloudwatch_role"
+      + tags_all    = (known after apply)
+      + unique_id   = (known after apply)
+    }
+
+  # aws_iam_role.ec2_cloudwatch_role will be created
+  + resource "aws_iam_role" "ec2_cloudwatch_role" {
+      + arn                   = (known after apply)
+      + assume_role_policy    = jsonencode(
+            {
+              + Statement = [
+                  + {
+                      + Action    = "sts:AssumeRole"
+                      + Effect    = "Allow"
+                      + Principal = {
+                          + Service = "ec2.amazonaws.com"
+                        }
+                    },
+                ]
+              + Version   = "2012-10-17"
+            }
+        )
+      + create_date           = (known after apply)
+      + force_detach_policies = false
+      + id                    = (known after apply)
+      + managed_policy_arns   = (known after apply)
+      + max_session_duration  = 3600
+      + name                  = "ec2_cloudwatch_role"
+      + name_prefix           = (known after apply)
+      + path                  = "/"
+      + tags_all              = (known after apply)
+      + unique_id             = (known after apply)
+
+      + inline_policy (known after apply)
+    }
+
+  # aws_iam_role_policy_attachment.cloudwatch_policy will be created
+  + resource "aws_iam_role_policy_attachment" "cloudwatch_policy" {
+      + id         = (known after apply)
+      + policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+      + role       = "ec2_cloudwatch_role"
+    }
+
   # aws_internet_gateway.igw will be created
   + resource "aws_internet_gateway" "igw" {
       + arn      = (known after apply)
@@ -83,16 +176,80 @@ Terraform will perform the following actions:
       + vpc_id   = (known after apply)
     }
 
-  # aws_launch_template.asg_lt will be created
-  + resource "aws_launch_template" "asg_lt" {
+  # aws_key_pair.pairkeys will be created
+  + resource "aws_key_pair" "pairkeys" {
+      + arn             = (known after apply)
+      + fingerprint     = (known after apply)
+      + id              = (known after apply)
+      + key_name        = "pairing keys"
+      + key_name_prefix = (known after apply)
+      + key_pair_id     = (known after apply)
+      + key_type        = (known after apply)
+      + public_key      = <<-EOT
+            -----BEGIN OPENSSH PRIVATE KEY-----
+            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
+            -----END OPENSSH PRIVATE KEY-----
+        EOT
+      + tags_all        = (known after apply)
+    }
+
+  # aws_launch_template.asg_test will be created
+  + resource "aws_launch_template" "asg_test" {
       + arn             = (known after apply)
       + default_version = (known after apply)
       + id              = (known after apply)
-      + image_id        = "ami-0c55b159cbfafe1f0"
+      + image_id        = "ami-012088614f199e3a9"
       + instance_type   = "t2.medium"
+      + key_name        = "pairing keys"
       + latest_version  = (known after apply)
       + name            = (known after apply)
-      + name_prefix     = "asg_lt"
+      + name_prefix     = "asg_test"
       + tags_all        = (known after apply)
 
       + metadata_options (known after apply)
@@ -104,7 +261,7 @@ Terraform will perform the following actions:
       + tag_specifications {
           + resource_type = "instance"
           + tags          = {
-              + "Name" = "asg_instance"
+              + "Name" = "test_asg"
             }
         }
     }
@@ -201,13 +358,13 @@ Terraform will perform the following actions:
       + subnet_id      = (known after apply)
     }
 
-  # aws_subnet.private_subnet will be created
-  + resource "aws_subnet" "private_subnet" {
+  # aws_subnet.privsubnet will be created
+  + resource "aws_subnet" "privsubnet" {
       + arn                                            = (known after apply)
       + assign_ipv6_address_on_creation                = false
       + availability_zone                              = "ap-southeast-1b"
       + availability_zone_id                           = (known after apply)
-      + cidr_block                                     = "10.2.0.0/24"
+      + cidr_block                                     = "10.1.2.0/24"
       + enable_dns64                                   = false
       + enable_resource_name_dns_a_record_on_launch    = false
       + enable_resource_name_dns_aaaa_record_on_launch = false
@@ -226,13 +383,13 @@ Terraform will perform the following actions:
       + vpc_id                                         = (known after apply)
     }
 
-  # aws_subnet.public_subnet will be created
-  + resource "aws_subnet" "public_subnet" {
+  # aws_subnet.pubsubnet will be created
+  + resource "aws_subnet" "pubsubnet" {
       + arn                                            = (known after apply)
       + assign_ipv6_address_on_creation                = false
-      + availability_zone                              = "ap-sooutheast-1a"
+      + availability_zone                              = "ap-southeast-1a"
       + availability_zone_id                           = (known after apply)
-      + cidr_block                                     = "10.1.0.0/24"
+      + cidr_block                                     = "10.1.1.0/24"
       + enable_dns64                                   = false
       + enable_resource_name_dns_a_record_on_launch    = false
       + enable_resource_name_dns_aaaa_record_on_launch = false
@@ -277,21 +434,20 @@ Terraform will perform the following actions:
         }
     }
 
-Plan: 14 to add, 0 to change, 0 to destroy.
+Plan: 20 to add, 0 to change, 0 to destroy.
 
 Changes to Outputs:
-  + asg_desired_capacity    = 2
-  + asg_name                = (known after apply)
-  + asg_vpc_zone_identifier = (known after apply)
-  + internet_gateway_id     = (known after apply)
-  + launch_template_id      = (known after apply)
-  + nat_gateway_eip         = (known after apply)
-  + nat_gateway_id          = (known after apply)
-  + private_route_table_id  = (known after apply)
-  + private_subnet_id       = (known after apply)
-  + public_route_table_id   = (known after apply)
-  + public_subnet_id        = (known after apply)
-  + vpc_id                  = (known after apply)
+  + autoscaling_group_name = (known after apply)
+  + cloudwatch_alarm_name  = "cpu_high"
+  + iam_instance_profile   = "ec2_profile"
+  + internet_gateway_id    = (known after apply)
+  + launch_template_id     = (known after apply)
+  + nat_gateway_id         = (known after apply)
+  + private_route_table_id = (known after apply)
+  + private_subnet_id      = (known after apply)
+  + public_route_table_id  = (known after apply)
+  + public_subnet_id       = (known after apply)
+  + vpc_id                 = (known after apply)
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

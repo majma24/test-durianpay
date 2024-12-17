@@ -1,18 +1,14 @@
-Apply complete! Resources: 1 added, 1 changed, 0 destroyed.
 
 Outputs:
 
-asg_desired_capacity = 2
-asg_name = "terraform-20241217041715060000000002"
-asg_vpc_zone_identifier = toset([
-  "subnet-02b71c792b4e674b5",
-])
-internet_gateway_id = "igw-02abeb91d9b9d8ad0"
-launch_template_id = "lt-0ba4d478312463596"
-nat_gateway_eip = "13.228.109.39"
-nat_gateway_id = "nat-0d286e01c8f084ba6"
-private_route_table_id = "rtb-0a8eeea8aa5eeaf15"
-private_subnet_id = "subnet-02b71c792b4e674b5"
-public_route_table_id = "rtb-0c68a42ccdcac535b"
-public_subnet_id = "subnet-056acebe5887dd353"
-vpc_id = "vpc-096d79abd704daefb"
+autoscaling_group_name = "terraform-20241217090650024500000003"
+cloudwatch_alarm_name = "cpu_high"
+iam_instance_profile = "ec2_profile"
+internet_gateway_id = "igw-004586a3d26a5520c"
+launch_template_id = "lt-08de9f7c28aee9360"
+nat_gateway_id = "nat-0b6efe174d0441f81"
+private_route_table_id = "rtb-010fbb1ef825d5551"
+private_subnet_id = "subnet-0307d0856ae7958eb"
+public_route_table_id = "rtb-00c50ee9a69e48549"
+public_subnet_id = "subnet-02a30a729efe03aed"
+vpc_id = "vpc-0ac8b77eb0b4af066"
