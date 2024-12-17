@@ -1,0 +1,18 @@
+Apply complete! Resources: 1 added, 1 changed, 0 destroyed.
+
+Outputs:
+
+asg_desired_capacity = 2
+asg_name = "terraform-20241217041715060000000002"
+asg_vpc_zone_identifier = toset([
+  "subnet-02b71c792b4e674b5",
+])
+internet_gateway_id = "igw-02abeb91d9b9d8ad0"
+launch_template_id = "lt-0ba4d478312463596"
+nat_gateway_eip = "13.228.109.39"
+nat_gateway_id = "nat-0d286e01c8f084ba6"
+private_route_table_id = "rtb-0a8eeea8aa5eeaf15"
+private_subnet_id = "subnet-02b71c792b4e674b5"
+public_route_table_id = "rtb-0c68a42ccdcac535b"
+public_subnet_id = "subnet-056acebe5887dd353"
+vpc_id = "vpc-096d79abd704daefb"
